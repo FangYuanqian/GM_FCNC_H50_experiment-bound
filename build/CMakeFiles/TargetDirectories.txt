@@ -1,0 +1,6 @@
+/home/fyq/H5/build/CMakeFiles/NphiTotalRange_167.dir
+/home/fyq/H5/build/CMakeFiles/NphiRangeByMass_167.dir
+/home/fyq/H5/build/CMakeFiles/NphiRangeByMass_GM.dir
+/home/fyq/H5/build/CMakeFiles/main_program.dir
+/home/fyq/H5/build/CMakeFiles/edit_cache.dir
+/home/fyq/H5/build/CMakeFiles/rebuild_cache.dir
