@@ -106,8 +106,8 @@ void scan_mass_and_theta(const std::vector<MassRange>& ranges, const std::string
 
 int main() {
     // 输入文件和输出文件路径
-    std::string input_file = "/home/fyq/H5/data/N_phi_output_167.csv";
-    std::string output_file = "/home/fyq/H5/data/N_phi_scanned_results.csv";
+    std::string input_file = "/home/fyq/Beam dump/CHARM/167/data/N_phi_output_167.csv";
+    std::string output_file = "/home/fyq/Beam dump/CHARM/167/data/N_phi_scanned_results.csv";
 
     // 读取质量范围数据
     auto ranges = read_mass_ranges_from_csv(input_file);

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
-# 定义项目名称 H5，并设置使用 C++ 17 标准
-project(H5)
+# 定义项目名称 Beam dump/CHARM/167，并设置使用 C++ 17 标准
+project(Beam dump/CHARM/167)
 
 # 设置 C++ 标准为 17
 set(CMAKE_CXX_STANDARD 17)
