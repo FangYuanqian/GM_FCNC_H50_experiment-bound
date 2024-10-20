@@ -49,6 +49,24 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
-    }
+        "typeinfo": "cpp",
+        "cstring": "cpp",
+        "complex": "cpp",
+        "map": "cpp"
+    },
+    "cSpell.words": [
+        "codemodel",
+        "constraintsdownline",
+        "constraintsupperline",
+        "deltall",
+        "DOWNLINE",
+        "Nphi",
+        "NPOT",
+        "Pphi",
+        "rightarrow",
+        "UPPERLINE"
+    ],
+    "C_Cpp.errorSquiggles": "disabled",
+    "git.ignoreLimitWarning": true,
+    "workbench.activityBar.location": "default"
 }

@@ -1,0 +1,12 @@
+
+add_executable(gamma_test H50_Decay_Gamma.cpp ${fullsrc})
+target_link_libraries(gamma_test spdlog::spdlog ${LT_LIBRARY})
+
+add_executable(experiment_test_LEP Experiment_compare_LEP.cpp ${fullsrc})
+target_link_libraries(experiment_test_LEP spdlog::spdlog ${LT_LIBRARY})
+
+add_executable(experiment_test_K_Meson Experiment_compare_K_Meson.cpp ${fullsrc})
+target_link_libraries(experiment_test_K_Meson spdlog::spdlog ${LT_LIBRARY})
+
+add_executable(experiment_167 Experiment_167.cpp ${fullsrc})
+target_link_libraries(experiment_167 spdlog::spdlog ${LT_LIBRARY})
