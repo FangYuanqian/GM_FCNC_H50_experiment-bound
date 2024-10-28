@@ -5,7 +5,7 @@ import os
 import matplotlib.ticker as ticker
 
 # 读取 CSV 文件
-input_file_path = '/home/fyq/DIYbyfyq/Experimentbound/Supernova/170/data/data.csv'
+input_file_path = '/home/fyq/DIYbyfyq/Experimentbound/Supernova/170/data/data62.csv'
 data = pd.read_csv(input_file_path)
 
 # 提取数据

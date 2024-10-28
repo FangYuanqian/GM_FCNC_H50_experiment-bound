@@ -16,7 +16,7 @@
 //rho_phi  (following 《the early universe》 in the nonrelativistic limit 即T不是远大于m)
 //lambda_phi-1 = Q_phi /xi_value / rho_phi * MeV_to_1/cm  (除以xi)
 //lambda_phi = 1.0 / lambda_phi_inverse * 2.1894549080（跟F计算的lambda相差的倍数） * 2.15（F计算的完美还原sintheta范围的所需的系数）
-//vphi = lambda_phi / tau_phi
+//\bar{E}=\frac{\rho}{n},\gamma=\bar{E}/m_S
 //tau_phi=1/（Gamma_phi_to_gamma + Gamma_phi_to_f + Gamma_phi_to_glue）;   
 
 //单位换算
@@ -203,36 +203,68 @@ double calculate_lambda_phi(double lambda_phi_inverse) {
     return lambda_phi;
 }
  
-
-// 计算 Lorentz 因子 γ
-double calculate_gamma(double lambda_phi, double tau_phi) {
-  
-    if (lambda_phi <= 0 || tau_phi <= 0) {
-        return -1; // 返回 -1 表示错误
-    }
-    double vphi = lambda_phi / tau_phi; // 计算粒子的速度
-    double velocity_ratio = vphi / c; // 计算速度比
-
-    if (velocity_ratio >= 1.0) {
-            return -1; // 返回 -1 表示错误
-        }
-
-    return 1.0 / sqrt(1.0 - pow(velocity_ratio, 2)); // 计算 Lorentz 因子 γ
+// 被积函数
+double integrand_number_density(double E, double m_phi) {
+    double result = (sqrt(E * E - m_phi * m_phi) / (exp(E / T_SN) + 1)) * E;
+    return result;
 }
 
-double calculate_escape_probability(double R_SN, double lambda_phi_inverse, double tau_phi, double sin_theta) {
-    double lambda_phi = calculate_lambda_phi(lambda_phi_inverse);
-    if (lambda_phi < 0) 
-        return 0; // 检查 lambda_phi 是否有效
+// 数密度计算
+double calculate_number_density(double m_phi) {
+    double integral_number_density = 0.0;
+    const int n = 1000; // 积分分区数量
+    const double E_max = 10 * T_SN; // 设定合适的上限
+    double h = (E_max - m_phi) / n; // 使用 m_phi 作为下限
 
-    // 调用 Lorentz 因子计算函数，避免与参数名称冲突
-        double local_gamma_phi = calculate_gamma(lambda_phi, tau_phi);
-    if (local_gamma_phi < 0) {
-        return 0; // 如果 γ 无效，则返回0
+
+    for (int i = 0; i < n; i++) {
+        double E = m_phi + i * h; // 使用 m_phi 作为起始点
+        double integrand_value = integrand_number_density(E, m_phi);
+        integral_number_density += integrand_value;
+
+        // 每100次迭代输出一次调试信息
+        if (i % 100 == 0) {
+        }
     }
 
-    // 计算逃逸概率 P_esc
-    double term1 = exp(-R_SN / (local_gamma_phi * c * tau_phi)); // exp(-R_SN / (γ c τ_φ))
+    integral_number_density *= h; // 积分结果乘以步长
+
+    // 乘以前面的常数因子
+    double final_result = (1 / (2 * PI * PI)) * integral_number_density; // 使用 g 计算最终结果
+
+    return final_result;
+}
+
+
+
+// 计算 Lorentz 因子 γ
+void calculate_bar_E_and_gamma(double m_phi, double& bar_E, double& gamma_phi) {
+    // 计算数密度
+    double number_density = calculate_number_density(m_phi);
+    
+    // 计算能量密度
+    double energy_density = calculate_energy_density(m_phi);
+    
+    // 计算 \bar{E}
+    if (number_density > 0) {
+        bar_E = energy_density / number_density;
+    } else {
+        bar_E = -1; // 表示错误
+        return;
+    }
+
+    // 计算 \gamma
+    if (m_phi > 0) {
+        gamma_phi = bar_E / m_phi;
+    } else {
+        gamma_phi = -1; // 表示错误
+    }
+}
+
+// 计算逃逸概率 P_esc
+double calculate_escape_probability(double lambda_phi, double gamma_phi, double tau_phi) {
+    // 计算 term1 和 term2
+    double term1 = exp(-R_SN / (gamma_phi * c * tau_phi)); // exp(-R_SN / (γ c τ_φ))
     double term2 = exp(-R_SN / lambda_phi); // exp(-R_SN / λ_φ)
     // 确保 term1 和 term2 在合理范围内
     if (term1 < 0 || term2 < 0) {
@@ -430,11 +462,11 @@ double calculate_Gamma_total(double m_phi, double sin_theta) {
                   
 
 // 计算寿命
-double calculate_tau(double Gamma) {
-    if (Gamma == 0) {
+double calculate_tau(double Gamma_total) {
+    if (Gamma_total == 0) {
     return 0; // 避免除以零
     }
-    return hbar / Gamma;
+    return hbar / Gamma_total;
 }
 
 // 对数均匀分布生成随机数的函数
@@ -454,7 +486,7 @@ int main() {
     auto start = std::chrono::high_resolution_clock::now();
 
     // 打开 CSV 文件
-    std::ofstream outputFile("/home/fyq/DIYbyfyq/Experimentbound/Supernova/170/data/data62.csv");
+    std::ofstream outputFile("/home/fyq/DIYbyfyq/Experimentbound/Supernova/170/data/data72.csv");
     if (!outputFile) {
         std::cerr << "无法打开文件!" << std::endl; // 检查文件是否成功打开
         return 1; // 如果失败，返回错误码
@@ -495,12 +527,18 @@ int main() {
         double lambda_phi_inverse = calculate_lambda_phi_inverse(Q_phi, rho_phi,xi_value);
         // 计算 lambda_phi
         double lambda_phi = calculate_lambda_phi(lambda_phi_inverse);
+        // 计算 \bar{E} 和 \gamma
+        double bar_E; 
+        double gamma_phi; 
         // 计算总宽度和寿命
         double Gamma_total = calculate_Gamma_total(m_phi, sin_theta);
         double tau_phi = calculate_tau(Gamma_total);
+
         // 使用 calculate_gamma 函数计算 Lorentz 因子 gamma_phi
-        double gamma_phi = calculate_gamma(lambda_phi, tau_phi);
-        double P_esc = calculate_escape_probability(R_SN, lambda_phi_inverse, tau_phi, sin_theta);
+        double number_density = calculate_number_density(m_phi); 
+        calculate_bar_E_and_gamma(m_phi, bar_E, gamma_phi);
+        double P_esc = calculate_escape_probability(lambda_phi, gamma_phi, tau_phi); // 添加 tau_phi 参数
+
    
 
         // 检查有效性
